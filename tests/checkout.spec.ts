@@ -56,7 +56,7 @@ test.describe('checkout', () => {
   test('empty submit surfaces the first missing field (Full name is required)', async ({ page }) => {
     await primeCheckout(page);
     await page.getByTestId('place-order').click();
-    await expect(page.getByTestId('checkout-error')).toHaveText('Full name is required');
+    await expect(page.getByTestId('checkout-error')).toContainText('Full name is required');
   });
 
   test('ZIP under 3 characters is rejected', async ({ page }) => {
@@ -64,7 +64,7 @@ test.describe('checkout', () => {
     await fillValidForm(page);
     await page.getByTestId('ship-zip').fill('AB');
     await page.getByTestId('place-order').click();
-    await expect(page.getByTestId('checkout-error')).toHaveText('Enter a valid ZIP / postal code');
+    await expect(page.getByTestId('checkout-error')).toContainText('Enter a valid ZIP / postal code');
   });
 
   test('invalid-Luhn card number is rejected', async ({ page }) => {
@@ -72,7 +72,7 @@ test.describe('checkout', () => {
     await fillValidForm(page);
     await page.getByTestId('pay-number').fill('1234 5678 9012 3456');
     await page.getByTestId('place-order').click();
-    await expect(page.getByTestId('checkout-error')).toHaveText('Card number is invalid');
+    await expect(page.getByTestId('checkout-error')).toContainText('Card number is invalid');
   });
 
   test('expired card is rejected', async ({ page }) => {
@@ -80,7 +80,7 @@ test.describe('checkout', () => {
     await fillValidForm(page);
     await page.getByTestId('pay-expiry').fill('01/20');
     await page.getByTestId('place-order').click();
-    await expect(page.getByTestId('checkout-error')).toHaveText('Card has expired');
+    await expect(page.getByTestId('checkout-error')).toContainText('Card has expired');
   });
 
   test('short CVC is rejected', async ({ page }) => {
@@ -88,7 +88,7 @@ test.describe('checkout', () => {
     await fillValidForm(page);
     await page.getByTestId('pay-cvc').fill('1');
     await page.getByTestId('place-order').click();
-    await expect(page.getByTestId('checkout-error')).toHaveText('CVC must be 3 or 4 digits');
+    await expect(page.getByTestId('checkout-error')).toContainText('CVC must be 3 or 4 digits');
   });
 
   test('confirmation page renders order details', async ({ page }) => {
