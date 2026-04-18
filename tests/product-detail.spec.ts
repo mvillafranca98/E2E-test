@@ -58,6 +58,18 @@ test.describe('product detail page', () => {
     await expect(page.getByRole('link', { name: /back to shop/i })).toBeVisible();
   });
 
+  test('rapid clicks on Add-to-cart (sizeless product) accumulate 1-per-click — no debounce', async ({ page }) => {
+    await page.goto('/products/canvas-tote-bag');
+    const add = page.getByTestId('add-to-cart');
+    for (let i = 0; i < 3; i++) await add.click();
+
+    await expect(page.getByTestId('cart-button')).toContainText('3');
+    const cart = await page.evaluate(() => JSON.parse(localStorage.getItem('ec_cart_v1') ?? '{}'));
+    expect(cart.items).toEqual([
+      expect.objectContaining({ productId: 'p011', quantity: 3, size: null }),
+    ]);
+  });
+
   test('add-to-cart without a size shows "Please select a size" and does not add', async ({ page }) => {
     await page.goto('/products/navy-oxford-shirt');
     await page.getByTestId('add-to-cart').click();

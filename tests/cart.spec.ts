@@ -69,6 +69,23 @@ test.describe('cart', () => {
     await expect(main(page).getByText('Your cart is empty.')).toBeVisible();
   });
 
+  test('cart state persists across a page reload', async ({ page }) => {
+    await page.goto('/products/navy-oxford-shirt');
+    await page.getByTestId('size-option-M').click();
+    await page.getByTestId('add-to-cart').click();
+    await expect(page.getByTestId('cart-button')).toContainText('1');
+
+    await page.reload();
+
+    await expect(page.getByTestId('cart-button')).toContainText('1');
+    await page.goto('/cart');
+    await expect(main(page).getByText('Navy Oxford Shirt')).toBeVisible();
+    const cart = await page.evaluate(() => JSON.parse(localStorage.getItem('ec_cart_v1') ?? '{}'));
+    expect(cart.items).toEqual([
+      expect.objectContaining({ productId: 'p002', quantity: 1, size: 'M' }),
+    ]);
+  });
+
   test('explicit Remove drops the line item', async ({ page }) => {
     await seedCart(page, [
       { productId: 'p002', quantity: 1, size: 'M' },
@@ -106,6 +123,25 @@ test.describe('promo code', () => {
     await main(page).getByTestId('promo-apply').click();
 
     await expect(main(page).getByText('Invalid promo code')).toBeVisible();
+  });
+
+  test('removing an applied promo strips the discount from the summary', async ({ page }) => {
+    await seedCart(page, [
+      { productId: 'p002', quantity: 1, size: 'M' },
+      { productId: 'p011', quantity: 1, size: null },
+    ]);
+    await page.goto('/cart');
+
+    await main(page).getByTestId('promo-input').fill('WELCOME10');
+    await main(page).getByTestId('promo-apply').click();
+    await expect(main(page).getByText('WELCOME10 applied')).toBeVisible();
+    await expect(main(page).getByText('−$8.60')).toBeVisible();
+
+    await main(page).getByTestId('promo-remove').click();
+
+    await expect(main(page).getByText('WELCOME10 applied')).toHaveCount(0);
+    await expect(main(page).getByText('−$8.60')).toHaveCount(0);
+    await expect(main(page).getByText(/Discount/i)).toHaveCount(0);
   });
 
   test('removing + reapplying WELCOME10 shows "Code already used this session"', async ({ page }) => {

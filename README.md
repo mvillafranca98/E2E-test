@@ -53,12 +53,12 @@ E2E-test/
 |------|------:|-------|
 | `cookie-consent` | 5 | Secure Privacy iframe banner: Accept/Decline buttons, `sp_consent` payload, persistence across reload for both actions. |
 | `auth` | 13 | Login (valid/invalid/empty), register (valid/duplicate/short-pw/no-uppercase), logout, protected-route redirects with preserved destination, plus one `test.fail()` for the sessionStorage token leak on logout. |
-| `browsing` | 10 | Homepage featured products, 16-product listing, Men's/Accessories/All filters, 3 sort orders, search including 0-result empty-state and search-clear. |
-| `product-detail` | 6 | In-stock PDP, OOS PDP with disabled button, size selection via `data-selected`, add-with-size persists correct `ec_cart_v1` line, 404 slug, "Please select a size" error when no size chosen. |
-| `cart` | 13 | Empty state, same-size-merges / different-size-splits, qty increment, decrement disabled at qty=1, remove, `WELCOME10` (10% off), invalid code, reuse-block, shipping thresholds at $50; one `test.fail()` for the stale-error persistence bug. |
+| `browsing` | 11 | Homepage featured products, 16-product listing, Men's/Accessories/All filters, 3 sort orders, search (incl. 0-result empty-state and search-clear), unknown-route 404 page. |
+| `product-detail` | 7 | In-stock PDP, OOS PDP with disabled button, size selection via `data-selected`, add-with-size persists correct `ec_cart_v1` line, 404 slug, "Please select a size" error when no size chosen, rapid-click accumulation (no debounce) on sizeless product. |
+| `cart` | 15 | Empty state, same-size-merges / different-size-splits, qty increment, decrement disabled at qty=1, remove line, cart-persists-across-reload, `WELCOME10` (10% off), invalid code, promo-remove strips discount, reuse-block, shipping thresholds at $50; one `test.fail()` for the stale-error persistence bug. |
 | `checkout` | 8 | Happy path (login + cart + shipping + card + order confirmation), first-field-only validation, ZIP < 3 chars, Luhn fail, expired card, short CVC, confirmation page; one `test.fail()` for the OOS-cart-completes-checkout bug. |
 
-**Total: 55 tests (52 positive + 3 known-bug markers).** The `test.fail()` markers flag real bugs discovered during the manual sweep — the suite goes red the day any of them is fixed.
+**Total: 59 tests (56 positive + 3 known-bug markers).** The `test.fail()` markers flag real bugs discovered during the manual sweep — the suite goes red the day any of them is fixed.
 
 ## Known bugs flagged by the suite
 
@@ -75,7 +75,7 @@ Playwright `getByTestId()` wherever the app exposes `data-testid` (every interac
 - **Cookie banner is a third-party iframe.** Helper uses `page.frameLocator('#ifrmCookieBanner')` and dismisses via `#sp-accept` with a 4s budget — no-op if the banner isn't visible. Not seeded via localStorage because the Secure Privacy SDK rejects a minimal blob inconsistently and the UI-dismiss path is 100% reliable.
 - **Every test uses a fresh browser context** (Playwright default), so storage is isolated and there is no cross-test state leakage.
 - **No fixed `waitForTimeout` calls.** All waits are on element state or text presence, with Playwright's auto-waiting.
-- **Suite runs 3× with no flakes** (`pnpm test:flake`).
+- **Suite runs 3× with no flakes** (`pnpm test:flake`) — 174/174 on the most recent run.
 
 ## Trade-offs
 

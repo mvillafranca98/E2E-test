@@ -6,6 +6,16 @@ test.beforeEach(async ({ page }) => {
   await dismissCookieBanner(page);
 });
 
+test.describe('navigation edges', () => {
+  test('unknown route renders the 404 page', async ({ page }) => {
+    await page.goto('/does-not-exist');
+
+    await expect(page.getByRole('heading', { name: '404' })).toBeVisible();
+    await expect(page.getByText("We couldn't find that page.")).toBeVisible();
+    await expect(page.getByRole('link', { name: /back to home/i })).toBeVisible();
+  });
+});
+
 test.describe('product listing', () => {
   test('homepage renders featured products', async ({ page }) => {
     await expect(page.getByRole('heading', { name: 'Featured products' })).toBeVisible();
