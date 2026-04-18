@@ -1,0 +1,19 @@
+{
+  "name": "northwind-goods-e2e",
+  "version": "0.1.0",
+  "private": true,
+  "description": "E2E Playwright test suite for Northwind Goods (Secure Privacy QA tech test)",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "test:flake": "playwright test --repeat-each=3",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "@types/node": "^25.6.0",
+    "typescript": "^6.0.3"
+  },
+  "packageManager": "pnpm@10.33.0"
+}
