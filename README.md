@@ -27,6 +27,81 @@ pnpm report            # open the last HTML report
 
 The config points Playwright's `webServer` at `../example-e-commerce-website` and reuses an already-running dev server if present, so you don't need to start the app manually.
 
+## Walkthrough — try it yourself
+
+A quick tour for anyone setting this up from scratch. Expected wall-clock: ~5 minutes.
+
+### 1. Clone both repos side by side
+
+```sh
+cd ~/Desktop
+mkdir Test && cd Test
+git clone https://github.com/secureprivacy/example-e-commerce-website.git
+git clone https://github.com/mvillafranca98/E2E-test.git
+```
+
+Final layout should be `Test/example-e-commerce-website/` and `Test/E2E-test/` as siblings.
+
+### 2. Install app dependencies
+
+```sh
+corepack enable                        # one-time, sets up pnpm
+cd example-e-commerce-website
+pnpm install                           # installs React + Vite
+```
+
+### 3. Install E2E dependencies
+
+```sh
+cd ../E2E-test
+pnpm install                           # installs @playwright/test + ts
+pnpm exec playwright install chromium  # downloads the browser
+```
+
+### 4. Run the full suite
+
+```sh
+pnpm test
+```
+
+You should see 59 tests, 58 with green checkmarks and 1 with a ✘ that counts as passing — that's a `test.fail()` marker for the session-token leak on logout (expected to fail until the bug is fixed). Total time ≈ 1.5 min.
+
+### 5. Watch it run visually
+
+```sh
+pnpm test:headed
+```
+
+Chromium opens and drives through every flow — cookie banner dismissal, login, filling forms, placing orders. Slower but shows you what each test actually does.
+
+### 6. Explore individual tests
+
+```sh
+pnpm test:ui
+```
+
+Playwright's UI mode opens. Click any spec in the tree on the left, hit the play icon next to a single test, inspect the trace viewer (DOM snapshots, network, console) for each step. This is the fastest way to understand how a test works.
+
+### 7. See the known-bug markers
+
+Open `tests/auth.spec.ts`, `tests/cart.spec.ts`, `tests/checkout.spec.ts`, search for `test.fail(` — three markers, each with a comment explaining the bug, what the test asserts, and why it currently fails.
+
+### 8. Prove reliability
+
+```sh
+pnpm test:flake
+```
+
+Runs the whole suite three times — 174 test runs. Last green run is on `main`.
+
+### 9. Read the report
+
+```sh
+pnpm report
+```
+
+Opens an HTML report of the most recent run, with per-test timing, traces, and screenshots.
+
 ## Layout
 
 ```
