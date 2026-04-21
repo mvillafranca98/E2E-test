@@ -1,6 +1,6 @@
 # Loom script — Northwind Goods E2E suite
 
-A tight 8-minute script mapped to the sections the tech-test PDF asks for. Use the headings as chapter markers; the _Do:_ lines are what to put on screen; the quoted lines are what to actually say. Keep it natural — these are beats, not a teleprompter.
+A ~9-minute script mapped to every beat the tech-test PDF asks for (page 3: structure, run, AI usage with "what you'd do differently", edge cases — plus "trade-offs and decisions" from page 2's "good from great"). Use the headings as chapter markers; the _Do:_ lines are what to put on screen; the quoted lines are what to actually say. Keep it natural — these are beats, not a teleprompter.
 
 ## Before you hit record
 
@@ -88,19 +88,25 @@ _When it finishes:_
 
 ---
 
-## 5. AI usage (≈ 90s)
+## 5. AI usage — what worked, what I fixed, what I'd do differently (≈ 110s)
 
-> "AI usage is explicit in the evaluation criteria so I want to be upfront about it. I used Claude Code to accelerate the scaffolding and first drafts, but every spec was reviewed against the real app. A few concrete examples of what I had to fix:
+> "AI usage is explicit in the evaluation criteria so I want to be upfront about it. I used Claude Code to accelerate the scaffolding and first drafts, but every spec was reviewed against the real app.
+>
+> **What worked well:** the AI was great at the structural scaffolding — `playwright.config.ts`, the helpers folder, the spec skeletons. Boilerplate that would have been 30 minutes of typing was a couple of minutes.
+>
+> **What I had to fix.** Three concrete examples.
 >
 > First — selectors. The AI assumed selectors like `getByRole('button', { name: \"Men's Apparel\" })` but that matched the Women's chip too because of the substring overlap. Real test IDs existed: `category-chip-apparel-mens`, etc. I swapped them across the browsing spec.
 >
-> Second — assertions that didn't match real behavior. The plan said 'reduce quantity to zero removes the item.' In reality, the decrement button is disabled at qty=1 and users have to click Remove. I rewrote that test to assert the correct behavior — disabled button, then explicit Remove.
+> Second — assertions that didn't match real behavior. The initial plan said 'reduce quantity to zero removes the item.' In reality, the decrement button is disabled at qty=1 and users have to click Remove. I rewrote that test to assert the correct behavior.
 >
-> Third — plural vs singular errors. AI-drafted tests expected multiple error messages on an empty checkout submit. The actual app surfaces one `checkout-error` node with the first missing field. Cleaner UX, different test.
+> Third — plural vs singular errors. AI-drafted tests expected multiple error messages on an empty checkout submit. The actual app surfaces one `checkout-error` node with the first missing field. Different test.
 >
-> And one retraction I'll call out because it's the kind of thing you shouldn't hide: I originally reported the 'add-to-cart without size is a silent no-op' as a bug. On deeper inspection, the app does show 'Please select a size' — it just renders below the footer and I missed it. I retracted it in the plan doc and converted it to a normal passing test.
+> And one retraction I'll call out because it's the kind of thing you shouldn't hide: I originally reported 'add-to-cart without size is a silent no-op' as a bug. On deeper inspection, the app does show 'Please select a size' — it just renders below the footer and I missed it. I retracted it in the plan doc and converted it to a normal passing test.
 >
-> The broader principle: the AI got me 80% of the way fast, but the remaining 20% was me running each test headed against the real app and rewriting whatever the AI assumed but couldn't verify. Unreviewed AI output would have produced a fragile suite."
+> **What I'd do differently next time.** I'd do a more thorough manual end-to-end sweep before any AI generation. I did a sweep — but I rushed from there to the first spec and a lot of the mid-stream corrections came from details I could have captured upfront in a single pass, mapping every test-id and error string before writing a line of test code. I'd also wire the `test.fail()` count into CI output so the known bugs don't quietly become normal — right now they're visible in the run summary but a future contributor might miss them.
+>
+> The broader principle: AI got me 80% of the way fast, but the remaining 20% was me running each test headed against the real app and rewriting whatever the AI assumed but couldn't verify. Unreviewed AI output would have produced a fragile suite."
 
 ---
 
@@ -117,7 +123,21 @@ _When it finishes:_
 
 ---
 
-## 7. Close (≈ 30s)
+## 7. Trade-offs and decisions (≈ 45s)
+
+> "A few decisions worth flagging — the kind of thing a teammate picking this up should know.
+>
+> One — I only target Chromium. The app is a client-side React SPA with no browser-specific behavior I found, and a single-browser matrix keeps CI fast. Adding WebKit and Firefox is a one-line config change when it's worth the time.
+>
+> Two — most auth is seeded directly into storage via `loginViaStorage` rather than driven through the UI. The UI login path is exercised in the auth spec, but every other spec uses the storage helper to stay fast and isolated. That's a speed-versus-realism trade-off I made deliberately.
+>
+> Three — I chose UI dismissal over localStorage seeding for the cookie banner. I tried seeding `sp_consent` to skip the iframe click, but the Secure Privacy SDK rejected a minimal blob intermittently. Reliability won over speed — I eat a 500ms iframe dismissal per test to keep the suite at zero flakes.
+>
+> Four — no visual-regression or accessibility coverage. Both were out of scope for the 1-to-2-hour target, but I'd add Playwright's `toHaveScreenshot` and axe-core scans as natural next steps."
+
+---
+
+## 8. Close (≈ 30s)
 
 _Do:_ switch back to the GitHub repo tab.
 
