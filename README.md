@@ -165,4 +165,4 @@ Scaffolding, first drafts of each spec, and the initial site sweep were done wit
 - AI proposed selectors that didn't exist; real test IDs were discovered by inspecting the live DOM and then wired into the specs.
 - AI-generated tests asserted plural validation errors on login / checkout; the real app surfaces a single form-level error — rewrote both specs.
 - AI parroted the plan's "decrement to 0 removes item" behavior; the real button disables at qty=1. Test was corrected.
-- I initially reported "add-to-cart without size is silent" as a bug; on deeper inspection the app renders "Please select a size" below the footer. Retracted in `Plan.md` and converted to a passing test.
+- I initially reported "add-to-cart without size is silent" as a bug; on deeper inspection the app renders "Please select a size" below the footer, later retracted.
